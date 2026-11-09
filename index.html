@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elie Mehinto Portfolio</title>
+<meta name="description" content="Elie Mehinto, étudiant M2 Cybersécurité & Réseaux, en recherche d'alternance. Projets SOC, threat hunting, pentest, cloud AWS et GRC.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a SOC console. Live log feed in the hero, projects filed as case cards, MITRE ATT&CK coverage as the signature section. */
+:root{
+  --bg:#0a0e15;
+  --panel:#111722;
+  --line:#232c3c;
+  --text:#e7eaf0;
+  --muted:#8d97a9;
+  --signal:#ffb020;
+  --alert:#ff5d5d;
+  --ok:#4fd1a1;
+  --font-display:"Chakra Petch", "Segoe UI", system-ui, sans-serif;
+  --font-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono:"IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:56px 56px;opacity:.18;
+  mask-image:radial-gradient(ellipse at 70% 0%,#000 0%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at 70% 0%,#000 0%,transparent 70%)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--signal);outline-offset:3px;border-radius:2px}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+.mono{font-family:var(--font-mono)}
+
+/* Header */
+header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px}
+.logo{font-family:var(--font-display);font-weight:700;font-size:18px;letter-spacing:.04em;text-decoration:none;display:flex;align-items:center;gap:10px}
+.logo span{color:var(--signal)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 var(--ok);animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(79,209,161,.55)}70%{box-shadow:0 0 0 9px rgba(79,209,161,0)}100%{box-shadow:0 0 0 0 rgba(79,209,161,0)}}
+nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav a{font-family:var(--font-mono);font-size:13px;color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:4px;white-space:nowrap}
+nav a:hover{color:var(--text);background:var(--panel)}
+
+/* Hero */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;padding:72px 0 56px}
+.status{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:13px;color:var(--ok);border:1px solid color-mix(in srgb,var(--ok) 40%,transparent);background:color-mix(in srgb,var(--ok) 8%,transparent);padding:6px 12px;border-radius:999px;margin-bottom:28px}
+h1{font-family:var(--font-display);font-weight:700;font-size:clamp(44px,7vw,84px);line-height:.95;letter-spacing:-.01em;text-wrap:balance}
+h1 .last{color:var(--signal);display:block}
+.role{font-family:var(--font-mono);font-size:14px;color:var(--muted);margin:22px 0 18px;letter-spacing:.02em}
+.role b{color:var(--text);font-weight:500}
+.pitch{font-size:18px;max-width:34em;color:#c9cfdb}
+.pitch strong{color:var(--text);font-weight:600}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+.btn{font-family:var(--font-mono);font-size:14px;font-weight:500;text-decoration:none;padding:12px 18px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer;transition:border-color .2s,transform .2s}
+.btn:hover{border-color:var(--signal);transform:translateY(-1px)}
+.btn.primary{background:var(--signal);border-color:var(--signal);color:#16110a}
+.btn.primary:hover{filter:brightness(1.08)}
+
+/* Terminal */
+.term{background:#070a10;border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(255,176,32,.18),0 0 0 1px rgba(255,255,255,.02) inset}
+.term-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel)}
+.lights{display:flex;gap:6px}
+.lights i{width:10px;height:10px;border-radius:50%;background:#2c3445}
+.lights i:first-child{background:var(--alert)}
+.term-title{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+.live{font-family:var(--font-mono);font-size:11px;color:var(--alert);display:flex;align-items:center;gap:6px}
+.live::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--alert);animation:blink 1.2s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.feed{font-family:var(--font-mono);font-size:12.5px;line-height:1.75;padding:14px 16px;height:318px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
+.feed p{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#aab3c3}
+.feed p.new{animation:in .35s ease-out}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.t{color:#5c6679}
+.src-c{color:#7aa7ff}.src-w{color:var(--ok)}.src-i{color:#c792ea}
+.tech{color:var(--signal)}
+.ok{color:var(--ok)}
+.sev-h{color:var(--alert)}
+.term-foot{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+.term-foot div{padding:10px 14px;font-family:var(--font-mono);font-size:11px;color:var(--muted)}
+.term-foot div+div{border-left:1px solid var(--line)}
+.term-foot b{display:block;font-size:18px;color:var(--text);font-weight:500;font-variant-numeric:tabular-nums}
+
+/* Sections */
+section{padding:72px 0;border-top:1px solid var(--line)}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:36px}
+.kicker{font-family:var(--font-mono);font-size:12px;color:var(--signal);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
+h2{font-family:var(--font-display);font-weight:600;font-size:clamp(30px,4vw,44px);line-height:1.05;text-wrap:balance}
+.sec-note{color:var(--muted);max-width:40em}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.stat{background:var(--bg);padding:24px}
+.stat b{font-family:var(--font-display);font-weight:700;font-size:44px;line-height:1;color:var(--text);font-variant-numeric:tabular-nums}
+.stat span{display:block;margin-top:10px;font-size:14px;color:var(--muted)}
+
+/* Filters */
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:var(--font-mono);font-size:13px;padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s}
+.chip:hover{color:var(--text);border-color:#3a4659}
+.chip[aria-pressed="true"]{background:var(--text);border-color:var(--text);color:var(--bg)}
+
+/* Case cards */
+.cases{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.case{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:24px;display:flex;flex-direction:column;gap:14px;position:relative;transition:border-color .25s,transform .25s}
+.case:hover{border-color:#3a4659;transform:translateY(-2px)}
+.case.featured{grid-column:span 2;border-color:color-mix(in srgb,var(--signal) 45%,var(--line))}
+.case[hidden]{display:none}
+.case-top{display:flex;justify-content:space-between;align-items:center;gap:12px;font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+.cat{display:flex;gap:6px;flex-wrap:wrap}
+.cat em{font-style:normal;padding:2px 8px;border-radius:4px;border:1px solid var(--line)}
+.cat em.blue{color:#7aa7ff;border-color:rgba(122,167,255,.35)}
+.cat em.red{color:var(--alert);border-color:rgba(255,93,93,.35)}
+.cat em.cloud{color:var(--ok);border-color:rgba(79,209,161,.35)}
+.cat em.grc{color:#c792ea;border-color:rgba(199,146,234,.35)}
+.cat em.intel{color:var(--signal);border-color:rgba(255,176,32,.35)}
+.case h3{font-family:var(--font-display);font-weight:600;font-size:23px;line-height:1.2;text-wrap:balance}
+.case p{color:#bcc3d0;font-size:15px}
+.result{display:flex;gap:12px;align-items:flex-start;font-size:14px;color:var(--text);background:rgba(255,255,255,.025);border-left:2px solid var(--signal);padding:10px 12px;border-radius:0 6px 6px 0}
+.result .mono{color:var(--signal);font-size:12px;padding-top:2px;flex-shrink:0}
+.ttps{display:flex;flex-wrap:wrap;gap:6px}
+.ttps span{font-family:var(--font-mono);font-size:11.5px;color:var(--signal);background:rgba(255,176,32,.08);padding:3px 7px;border-radius:4px}
+.stack{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+.case-link{margin-top:auto;font-family:var(--font-mono);font-size:13px;color:var(--text);text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding-top:6px}
+.case-link:hover{color:var(--signal)}
+.case-link::after{content:"→";transition:transform .2s}
+.case-link:hover::after{transform:translateX(4px)}
+
+/* MITRE */
+.matrix{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px;overflow-x:auto}
+.tactic{min-width:120px;display:flex;flex-direction:column;gap:6px}
+.tactic h4{font-family:var(--font-mono);font-weight:500;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:8px 2px;border-bottom:1px solid var(--line);min-height:52px;display:flex;align-items:flex-end}
+.tq{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:9px 10px;cursor:default;transition:border-color .2s,background .2s}
+.tq b{display:block;font-family:var(--font-mono);font-weight:500;font-size:12px;color:var(--signal)}
+.tq span{display:block;font-size:12.5px;line-height:1.35;margin-top:3px}
+.tq small{display:block;font-family:var(--font-mono);font-size:10.5px;color:var(--muted);margin-top:6px}
+.tq.det{border-left:2px solid #7aa7ff}
+.tq.att{border-left:2px solid var(--alert)}
+.tq.obs{border-left:2px solid var(--signal)}
+.tq:hover{background:#161e2c;border-color:#3a4659}
+.legend{display:flex;flex-wrap:wrap;gap:18px;margin-top:18px;font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:7px;vertical-align:-1px}
+
+/* Skills */
+.skills{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.skill{border:1px solid var(--line);border-radius:10px;padding:22px}
+.skill h3{font-family:var(--font-display);font-weight:600;font-size:18px;margin-bottom:14px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags span{font-size:13px;padding:4px 10px;border-radius:4px;background:var(--panel);border:1px solid var(--line);color:#c9cfdb}
+
+/* Path + certs */
+.two{display:grid;grid-template-columns:1.2fr .8fr;gap:48px}
+.timeline{list-style:none;position:relative}
+.timeline li{position:relative;padding:0 0 28px 28px;border-left:1px solid var(--line)}
+.timeline li:last-child{padding-bottom:0}
+.timeline li::before{content:"";position:absolute;left:-5px;top:7px;width:9px;height:9px;border-radius:50%;background:var(--bg);border:2px solid var(--signal)}
+.timeline li.now::before{background:var(--signal)}
+.timeline .where{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+.timeline h3{font-family:var(--font-display);font-weight:600;font-size:19px;line-height:1.25;margin:2px 0 4px}
+.timeline p{font-size:14.5px;color:#bcc3d0}
+.certs{display:flex;flex-direction:column;gap:10px}
+.cert{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.cert .badge{width:38px;height:38px;flex-shrink:0;border-radius:6px;display:grid;place-items:center;font-family:var(--font-mono);font-size:11px;font-weight:500;color:var(--bg);background:var(--signal)}
+.cert .badge.b2{background:#7aa7ff}.cert .badge.b3{background:var(--ok)}
+.cert b{display:block;font-weight:600;font-size:15px}
+.cert span{font-size:13px;color:var(--muted)}
+
+/* Contact */
+.contact{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:44px;position:relative;overflow:hidden}
+.contact::after{content:"";position:absolute;right:-80px;top:-80px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(255,176,32,.18),transparent 70%);pointer-events:none}
+.contact h2{margin-bottom:16px}
+.contact p{color:#c9cfdb;max-width:32em}
+.facts{list-style:none;margin-top:20px;display:flex;flex-direction:column;gap:6px;font-family:var(--font-mono);font-size:13px;color:var(--muted)}
+.facts li::before{content:"› ";color:var(--signal)}
+.links{display:flex;flex-direction:column;gap:10px;position:relative;z-index:1}
+.links a,.links button{display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left;width:100%;font-family:var(--font-mono);font-size:14px;color:var(--text);text-decoration:none;padding:14px 16px;border:1px solid var(--line);border-radius:8px;background:var(--bg);cursor:pointer;transition:border-color .2s}
+.links a:hover,.links button:hover{border-color:var(--signal)}
+.links small{color:var(--muted);font-size:12px}
+footer{padding:32px 0 48px;font-family:var(--font-mono);font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* Responsive */
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr;padding-top:48px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .cases{grid-template-columns:1fr}
+  .case.featured{grid-column:auto}
+  .skills{grid-template-columns:1fr 1fr}
+  .two,.contact{grid-template-columns:1fr}
+  .matrix{grid-template-columns:repeat(8,140px);padding-bottom:8px}
+}
+@media (max-width:560px){
+  .wrap{padding:0 16px}
+  .skills{grid-template-columns:1fr}
+  .stat b{font-size:36px}
+  .contact{padding:28px 20px}
+  .feed{font-size:11.5px;height:280px}
+  .bar{height:auto;padding:12px 0;flex-direction:column;align-items:flex-start;gap:8px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="#top"><i class="dot" aria-hidden="true"></i>elie<span>.</span>mehinto</a>
+    <nav aria-label="Sections">
+      <a href="#projets">projets</a>
+      <a href="#mitre">att&amp;ck</a>
+      <a href="#competences">compétences</a>
+      <a href="#parcours">parcours</a>
+      <a href="#contact">contact</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top" class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div>
+      <div class="status"><i class="dot" aria-hidden="true"></i>En recherche d'alternance cybersécurité</div>
+      <h1>Elie<span class="last">Mehinto</span></h1>
+      <p class="role"><b>M2 Cybersécurité &amp; Réseaux</b> · REDSUP Paris · SOC, threat hunting, cloud</p>
+      <p class="pitch">J'expose des machines aux vrais attaquants, j'écris les règles qui les détectent et je rejoue leurs techniques pour vérifier que la détection tient. <strong>7 projets publiés sur GitHub</strong>, du honeypot sur Internet jusqu'à l'analyse de risques EBIOS RM.</p>
+      <div class="ctas">
+        <a class="btn primary" href="#projets">Voir les projets</a>
+        <a class="btn" href="https://github.com/eliemehintookou" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn" href="#contact">Me contacter</a>
+      </div>
+    </div>
+
+    <div class="term" aria-label="Extrait du flux d'événements de mes labs">
+      <div class="term-head">
+        <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="term-title">honeypot + wazuh · flux d'événements</div>
+        <div class="live">LIVE</div>
+      </div>
+      <div class="feed" id="feed" aria-live="off"></div>
+      <div class="term-foot">
+        <div><b>227</b>IP attaquantes</div>
+        <div><b>152</b>score d'abus ≥ 90</div>
+        <div><b>1 859</b>T1082 observées</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><b>7</b><span>projets publiés, code et rapports sur GitHub</span></div>
+    <div class="stat"><b>15</b><span>techniques MITRE ATT&amp;CK détectées, rejouées ou observées</span></div>
+    <div class="stat"><b>5</b><span>règles Wazuh validées en conditions réelles</span></div>
+    <div class="stat"><b>3</b><span>certifications Fortinet, plus Cisco Ethical Hacker</span></div>
+  </div>
+
+  <!-- PROJECTS -->
+  <section id="projets">
+    <div class="sec-head">
+      <div>
+        <div class="kicker">Dossiers</div>
+        <h2>Projets</h2>
+      </div>
+      <div class="filters" role="group" aria-label="Filtrer les projets">
+        <button class="chip" aria-pressed="true" data-f="all">Tous</button>
+        <button class="chip" aria-pressed="false" data-f="blue">Blue team</button>
+        <button class="chip" aria-pressed="false" data-f="red">Red team</button>
+        <button class="chip" aria-pressed="false" data-f="cloud">Cloud</button>
+        <button class="chip" aria-pressed="false" data-f="intel">Threat intel</button>
+        <button class="chip" aria-pressed="false" data-f="grc">GRC</button>
+      </div>
+    </div>
+
+    <div class="cases">
+
+      <article class="case featured" data-cat="intel blue">
+        <div class="case-top"><span>CASE-01</span><div class="cat"><em class="intel">Threat intel</em><em class="blue">Blue team</em></div></div>
+        <h3>Honeypot exposé sur Internet et analyse de menaces</h3>
+        <p>Un honeypot Cowrie (SSH + Telnet) déployé sur un VPS, déguisé en serveur de production. Les vraies sessions d'attaque sont collectées, chaque IP est enrichie via l'API AbuseIPDB, puis chaque commande est rattachée à une technique MITRE ATT&amp;CK. Un rapport HTML synthétise le tout.</p>
+        <div class="result"><span class="mono">RÉSULTAT</span><span>En 2 jours : 227 IP enrichies, dont 152 avec un score d'abus ≥ 90. Comportements de botnets Mirai et Miori identifiés, tentative de dépôt de binaire via wget.</span></div>
+        <div class="ttps"><span>T1082</span><span>T1222.002</span><span>T1105</span></div>
+        <div class="stack">Cowrie · Python · AbuseIPDB · iptables · systemd · Ubuntu 24.04</div>
+        <a class="case-link" href="https://github.com/eliemehintookou/honeypot-threat-intel" target="_blank" rel="noopener">honeypot-threat-intel</a>
+      </article>
+
+      <article class="case" data-cat="blue">
+        <div class="case-top"><span>CASE-02</span><div class="cat"><em class="blue">Blue team</em></div></div>
+        <h3>Threat hunting Windows avec Wazuh et Sysmon</h3>
+        <p>Lab SOC de 3 machines (contrôleur de domaine AD, poste Windows 10, serveur Wazuh). Écriture de règles de détection personnalisées, puis simulation d'une kill chain complète pour les valider. C'est aussi le sujet de mon mémoire de fin de M1.</p>
+        <div class="result"><span class="mono">RÉSULTAT</span><span>5 règles validées en conditions réelles. Débogage de règles Wazuh concurrentes et de faux négatifs documenté.</span></div>
+        <div class="ttps"><span>T1059.001</span><span>T1027</span><span>T1204</span><span>T1071</span><span>T1003.001</span><span>T1053.005</span></div>
+        <div class="stack">Wazuh · Sysmon · Active Directory · PowerShell · Windows Defender</div>
+        <a class="case-link" href="https://github.com/eliemehintookou/wazuh-sysmon-threat-hunting" target="_blank" rel="noopener">wazuh-sysmon-threat-hunting</a>
+      </article>
+
+      <article class="case" data-cat="red cloud">
+        <div class="case-top"><span>CASE-03</span><div class="cat"><em class="red">Red team</em><em class="cloud">Cloud</em></div></div>
+        <h3>Lab d'attaque Active Directory sur AWS</h3>
+        <p>Un domaine AD déployé sur AWS en Terraform, avec des comptes volontairement vulnérables. Attaques Kerberos menées depuis une machine attaquante, puis cartographie des chemins d'attaque dans BloodHound.</p>
+        <div class="result"><span class="mono">RÉSULTAT</span><span>Kerberoasting et AS-REP Roasting menés de bout en bout, mots de passe retrouvés hors ligne.</span></div>
+        <div class="ttps"><span>T1558.003</span><span>T1558.004</span><span>T1087.002</span></div>
+        <div class="stack">Terraform · AWS EC2 · Impacket · BloodHound CE · Docker · John</div>
+        <a class="case-link" href="https://github.com/eliemehintookou/active-directory-attack-lab" target="_blank" rel="noopener">active-directory-attack-lab</a>
+      </article>
+
+      <article class="case" data-cat="cloud blue">
+        <div class="case-top"><span>CASE-04</span><div class="cat"><em class="cloud">Cloud</em><em class="blue">Blue team</em></div></div>
+        <h3>Audit de sécurité AWS façon CSPM</h3>
+        <p>Une infrastructure AWS (VPC, EC2, S3) déployée en Terraform avec des erreurs de configuration volontaires, puis un outil Python d'audit qui les détecte, à la manière d'un CSPM.</p>
+        <div class="result"><span class="mono">RÉSULTAT</span><span>Détection des security groups ouverts sur les ports critiques, des buckets S3 publics, et vérification de CloudTrail et GuardDuty. Export JSON et rapport HTML.</span></div>
+        <div class="stack">AWS · Terraform · Python · IAM · GuardDuty · CloudTrail</div>
+        <a class="case-link" href="https://github.com/eliemehintookou/aws-cloud-security-cspm" target="_blank" rel="noopener">aws-cloud-security-cspm</a>
+      </article>
+
+      <article class="case" data-cat="red">
+        <div class="case-top"><span>CASE-05</span><div class="cat"><em class="red">Red team</em></div></div>
+        <h3>Test d'intrusion Metasploitable 2 et analyseur Nmap</h3>
+        <p>Pentest en 5 phases aligné sur la méthodologie PTES, complété par un outil Python qui parse le XML de Nmap, corrèle produit et version avec une base de CVE et génère un rapport priorisé.</p>
+        <div class="result"><span class="mono">RÉSULTAT</span><span>3 exploitations (vsftpd CVE-2011-2523, Samba CVE-2007-2447, Tomcat Manager). Corrélation CVE sans le faux positif d'origine.</span></div>
+        <div class="stack">Kali · Nmap · Metasploit · Python · PTES</div>
+        <a class="case-link" href="https://github.com/eliemehintookou/Metasploitable2-Full-Penetration-Test" target="_blank" rel="noopener">Metasploitable2-Full-Penetration-Test</a>
+      </article>
+
+      <article class="case" data-cat="blue">
+        <div class="case-top"><span>CASE-06</span><div class="cat"><em class="blue">Blue team</em></div></div>
+        <h3>Mini-SIEM en Python</h3>
+        <p>Un moteur de détection écrit de zéro : parsing de logs d'authentification, règles par fenêtre glissante, mapping MITRE ATT&amp;CK et rapport d'alertes trié par sévérité.</p>
+        <div class="result"><span class="mono">RÉSULTAT</span><span>Distingue le brute force du password spraying et corrèle une connexion réussie après une attaque.</span></div>
+        <div class="ttps"><span>T1110.001</span><span>T1110.003</span><span>T1078</span></div>
+        <div class="stack">Python · Regex · JSON · Git</div>
+        <a class="case-link" href="https://github.com/eliemehintookou/mini-siem" target="_blank" rel="noopener">mini-siem</a>
+      </article>
+
+      <article class="case" data-cat="grc">
+        <div class="case-top"><span>CASE-07</span><div class="cat"><em class="grc">GRC</em></div></div>
+        <h3>Analyse de risques EBIOS RM</h3>
+        <p>Les 5 ateliers de la méthode ANSSI déroulés sur une PME fictive éditrice de logiciel de santé : socle de sécurité, sources de risque, scénarios stratégiques et opérationnels, traitement du risque.</p>
+        <div class="result"><span class="mono">RÉSULTAT</span><span>Rapport complet de bout en bout, qui fait le lien entre la technique et la gouvernance.</span></div>
+        <div class="stack">EBIOS RM · ANSSI · Gestion des risques</div>
+        <a class="case-link" href="https://github.com/eliemehintookou/ebios-rm-risk-analysis" target="_blank" rel="noopener">ebios-rm-risk-analysis</a>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- MITRE -->
+  <section id="mitre">
+    <div class="sec-head">
+      <div>
+        <div class="kicker">Couverture</div>
+        <h2>Ma carte MITRE ATT&amp;CK</h2>
+      </div>
+      <p class="sec-note">Les techniques que j'ai détectées avec mes propres règles, rejouées en attaque ou observées chez de vrais attaquants.</p>
+    </div>
+
+    <div class="matrix">
+      <div class="tactic"><h4>Initial Access</h4>
+        <div class="tq det"><b>T1078</b><span>Valid Accounts</span><small>mini-SIEM</small></div>
+      </div>
+      <div class="tactic"><h4>Execution</h4>
+        <div class="tq det"><b>T1059.001</b><span>PowerShell</span><small>Wazuh 100011</small></div>
+        <div class="tq det"><b>T1204</b><span>User Execution</span><small>Wazuh 100012</small></div>
+      </div>
+      <div class="tactic"><h4>Persistence</h4>
+        <div class="tq det"><b>T1053.005</b><span>Scheduled Task</span><small>Wazuh 100014</small></div>
+      </div>
+      <div class="tactic"><h4>Defense Evasion</h4>
+        <div class="tq det"><b>T1027</b><span>Obfuscated Commands</span><small>Wazuh 100011</small></div>
+        <div class="tq obs"><b>T1222.002</b><span>Permissions Modification</span><small>honeypot</small></div>
+      </div>
+      <div class="tactic"><h4>Credential Access</h4>
+        <div class="tq det"><b>T1110.001</b><span>Brute Force</span><small>mini-SIEM</small></div>
+        <div class="tq det"><b>T1110.003</b><span>Password Spraying</span><small>mini-SIEM</small></div>
+        <div class="tq det"><b>T1003.001</b><span>LSASS Memory</span><small>Wazuh 92900</small></div>
+        <div class="tq att"><b>T1558.003</b><span>Kerberoasting</span><small>AD lab</small></div>
+        <div class="tq att"><b>T1558.004</b><span>AS-REP Roasting</span><small>AD lab</small></div>
+      </div>
+      <div class="tactic"><h4>Discovery</h4>
+        <div class="tq obs"><b>T1082</b><span>System Info Discovery</span><small>honeypot</small></div>
+        <div class="tq att"><b>T1087.002</b><span>Domain Account Discovery</span><small>BloodHound</small></div>
+      </div>
+      <div class="tactic"><h4>Command &amp; Control</h4>
+        <div class="tq det"><b>T1071</b><span>App Layer Protocol</span><small>Wazuh 100013</small></div>
+        <div class="tq obs"><b>T1105</b><span>Ingress Tool Transfer</span><small>honeypot</small></div>
+      </div>
+      <div class="tactic"><h4>Impact</h4>
+        <div class="tq" style="opacity:.45"><b>Prochaine étape</b><span>À couvrir</span></div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i style="background:#7aa7ff"></i>Détectée par mes règles</span>
+      <span><i style="background:var(--alert)"></i>Rejouée en attaque</span>
+      <span><i style="background:var(--signal)"></i>Observée chez de vrais attaquants</span>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="competences">
+    <div class="sec-head">
+      <div>
+        <div class="kicker">Boîte à outils</div>
+        <h2>Compétences</h2>
+      </div>
+      <p class="sec-note">Uniquement des outils utilisés dans les projets ci-dessus.</p>
+    </div>
+    <div class="skills">
+      <div class="skill"><h3>Détection &amp; SOC</h3><div class="tags"><span>Wazuh</span><span>Sysmon</span><span>Règles de détection</span><span>MITRE ATT&amp;CK</span><span>Analyse de logs</span><span>Threat intel</span><span>Cowrie</span></div></div>
+      <div class="skill"><h3>Offensif</h3><div class="tags"><span>Nmap</span><span>Metasploit</span><span>Impacket</span><span>BloodHound</span><span>John the Ripper</span><span>PTES</span><span>Kali Linux</span></div></div>
+      <div class="skill"><h3>Cloud &amp; IaC</h3><div class="tags"><span>AWS EC2 / S3 / VPC</span><span>IAM</span><span>GuardDuty</span><span>CloudTrail</span><span>Terraform</span><span>Docker</span></div></div>
+      <div class="skill"><h3>Systèmes &amp; réseaux</h3><div class="tags"><span>Active Directory</span><span>Windows Server</span><span>Linux Ubuntu</span><span>iptables</span><span>pfSense</span><span>VLAN</span><span>GNS3</span><span>Fortinet</span></div></div>
+      <div class="skill"><h3>Code &amp; automatisation</h3><div class="tags"><span>Python</span><span>PowerShell</span><span>Bash</span><span>Git / GitHub</span><span>APIs REST</span></div></div>
+      <div class="skill"><h3>GRC</h3><div class="tags"><span>EBIOS RM</span><span>Analyse de risques</span><span>RGPD (MOOC CNIL)</span><span>Bonnes pratiques ANSSI</span></div></div>
+    </div>
+  </section>
+
+  <!-- PATH + CERTS -->
+  <section id="parcours">
+    <div class="two">
+      <div>
+        <div class="kicker">Parcours</div>
+        <h2 style="margin-bottom:32px">Formation &amp; expériences</h2>
+        <ul class="timeline">
+          <li class="now"><div class="where">REDSUP · Paris · en cours</div><h3>M2 Expert IT en Cybersécurité et Haute Disponibilité</h3><p>M1 validé. Mémoire sur la réponse aux incidents et le threat hunting avec Wazuh et Sysmon.</p></li>
+          <li><div class="where">ISA, Information Security Architects · Ghana · 6 mois</div><h3>Stage en cybersécurité</h3><p>Expérience terrain dans une société de conseil en sécurité de l'information.</p></li>
+          <li><div class="where">Rezelent Cyber Architects · Ghana</div><h3>Formation en cybersécurité</h3></li>
+          <li><div class="where">HGTech · Bénin · 4 mois</div><h3>Stage réseaux</h3></li>
+          <li><div class="where">Les Cours Sonou · Bénin</div><h3>Licence professionnelle en informatique</h3></li>
+        </ul>
+      </div>
+      <div>
+        <div class="kicker">Certifications</div>
+        <h2 style="margin-bottom:32px">Validé</h2>
+        <div class="certs">
+          <div class="cert"><div class="badge">FCA</div><div><b>Fortinet Certified Associate</b><span>Cybersecurity</span></div></div>
+          <div class="cert"><div class="badge">FCF</div><div><b>Fortinet Certified Fundamentals</b><span>Cybersecurity</span></div></div>
+          <div class="cert"><div class="badge">NSE1</div><div><b>Fortinet NSE 1</b><span>Network Security Associate</span></div></div>
+          <div class="cert"><div class="badge b2">EH</div><div><b>Ethical Hacker</b><span>Cisco Networking Academy</span></div></div>
+          <div class="cert"><div class="badge b3">ANSSI</div><div><b>MOOC SecNumacadémie</b><span>ANSSI</span></div></div>
+          <div class="cert"><div class="badge b3">CNIL</div><div><b>MOOC RGPD</b><span>CNIL</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact">
+      <div>
+        <div class="kicker">Disponible</div>
+        <h2>Je cherche une alternance en cybersécurité</h2>
+        <p>SOC, détection, sécurité cloud ou audit : je veux rejoindre une équipe où je peux être utile dès les premières semaines et continuer à apprendre.</p>
+        <ul class="facts">
+          <li>Rythme 1 semaine école / 3 semaines entreprise</li>
+          <li>Île-de-France, mobile partout en France</li>
+          <li>Bilingue français / anglais · Permis B</li>
+        </ul>
+      </div>
+      <div class="links">
+        <button type="button" id="copyMail"><span>emploielie@gmail.com</span><small id="copyState">copier</small></button>
+        <a href="https://bit.ly/4nk6Yz2" target="_blank" rel="noopener"><span>LinkedIn</span><small>profil →</small></a>
+        <a href="https://github.com/eliemehintookou" target="_blank" rel="noopener"><span>GitHub</span><small>@eliemehintookou →</small></a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>© 2026 Elie Mehinto</span>
+    <span>Hébergé sur GitHub Pages</span>
+  </footer>
+</main>
+
+<script>
+(function(){
+  // Hero feed: events drawn from my labs (IPs masked)
+  var events = [
+    ['c','cowrie','login root/admin <span class="ok">accepté</span> · src 103.**.**.7'],
+    ['c','cowrie','cmd <span class="tech">uname -a</span> → T1082'],
+    ['i','intel','AbuseIPDB 103.**.**.7 · score <span class="sev-h">100</span>'],
+    ['c','cowrie','cmd <span class="tech">chmod 777 /tmp/.x</span> → T1222.002'],
+    ['c','cowrie','cmd <span class="tech">/bin/busybox MIORI</span> · botnet Miori'],
+    ['c','cowrie','cmd wget http://**/iran.x86_64 → <span class="tech">T1105</span>'],
+    ['i','intel','AbuseIPDB 45.**.**.112 · score <span class="sev-h">94</span>'],
+    ['w','wazuh','rule 100011 lvl 10 · PowerShell -enc → <span class="tech">T1059.001</span>'],
+    ['w','wazuh','rule 100014 lvl 9 · schtasks /create → <span class="tech">T1053.005</span>'],
+    ['w','wazuh','rule 92900 lvl 12 · accès LSASS → <span class="sev-h">T1003.001</span>'],
+    ['c','cowrie','login admin/1234 <span class="ok">accepté</span> · src 185.**.**.41'],
+    ['c','cowrie','cmd <span class="tech">cat /proc/cpuinfo</span> → T1082'],
+    ['w','wazuh','rule 100013 lvl 8 · powershell → 10.0.1.10:389 → <span class="tech">T1071</span>'],
+    ['i','intel','227 IP enrichies · 152 avec score ≥ 90'],
+    ['w','wazuh','rule 100012 lvl 7 · exécution depuis Temp → <span class="tech">T1204</span>']
+  ];
+  var feed = document.getElementById('feed');
+  var MAX = 13, i = 0, base = new Date(2026,8,4,3,12,8);
+  function line(animate){
+    var e = events[i % events.length];
+    base = new Date(base.getTime() + (2 + (i*7)%9) * 1000);
+    var ts = base.toTimeString().slice(0,8);
+    var p = document.createElement('p');
+    if (animate) p.className = 'new';
+    p.innerHTML = '<span class="t">' + ts + '</span> <span class="src-' + e[0] + '">[' + e[1] + ']</span> ' + e[2];
+    feed.appendChild(p);
+    while (feed.children.length > MAX) feed.removeChild(feed.firstChild);
+    i++;
+  }
+  for (var k = 0; k < MAX; k++) line(false);
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduce) setInterval(function(){ line(true); }, 1600);
+
+  // Project filters
+  var chips = document.querySelectorAll('.chip');
+  var cases = document.querySelectorAll('.case');
+  chips.forEach(function(c){
+    c.addEventListener('click', function(){
+      chips.forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+      c.setAttribute('aria-pressed','true');
+      var f = c.getAttribute('data-f');
+      cases.forEach(function(card){
+        var cats = card.getAttribute('data-cat').split(' ');
+        card.hidden = !(f === 'all' || cats.indexOf(f) > -1);
+      });
+    });
+  });
+
+  // Copy email
+  var btn = document.getElementById('copyMail'), st = document.getElementById('copyState');
+  btn.addEventListener('click', function(){
+    var mail = 'emploielie@gmail.com';
+    try {
+      navigator.clipboard.writeText(mail).then(function(){ st.textContent = 'copié ✓'; },
+        function(){ st.textContent = 'sélectionnez l\'adresse'; });
+    } catch(e){ st.textContent = 'sélectionnez l\'adresse'; }
+    setTimeout(function(){ st.textContent = 'copier'; }, 2200);
+  });
+})();
+</script>
+</body>
+</html>
